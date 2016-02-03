@@ -1,0 +1,41 @@
+
+
+
+##       Client Addr: 127.0.0.1 (HTTP: 8500, HTTPS: -1, DNS: 8600, RPC: 8400)
+##               Cluster Addr: 172.17.0.2 (LAN: 8301, WAN: 8302)
+
+bootstrap:
+  #image: consul-bootstrap
+  build: consul-bootstrap/
+  expose:
+    - "8500"
+    - "8600"
+    - "8400"
+    - "8301"
+    - "8302"
+
+server:
+  build: consul-server/
+  links:
+    - "bootstrap:consul"
+  expose:
+    - "8500"
+    - "8600"
+    - "8400"
+    - "8301"
+    - "8302"
+
+
+
+agent:
+  build: consul-agent
+  links:
+    - "server:consul"
+  expose:
+    - "8500"
+    - "8600"
+    - "8400"
+    - "8301"
+    - "8302"
+
+
