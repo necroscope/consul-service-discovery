@@ -20,6 +20,15 @@ This will:
 - run a quick demo + members + scaling
 - brew fine english tea (HTTP/418)
 
+## try also
+
+- `make clean`
+- `make clean stack`
+- `make members`
+- `make demo`
+- `make tea`
+- `make coffee`
+
 
 # but i really do live in the real world
 
