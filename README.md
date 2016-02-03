@@ -6,9 +6,16 @@ Quick POC demo stack containing:
 - consul-server: run a consul server in the cluster
 - consul-agent: extent to create agent based images
 
-# i want to be discovery
+# i want some discovery
 
 ```
+git clone git@github.com:rednut/consul-service-discovery.git consul-service-discovery
+cd consul-service-discovery
+```
+
+Then:
+```
+# make local demo stack
 make
 ```
 
