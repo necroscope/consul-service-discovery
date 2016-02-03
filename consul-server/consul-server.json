@@ -1,1 +1,1 @@
-{"start_join":["consul"], "server": true, "datacenter": "stu", "data_dir": "/var/consul", "encrypt": "HI1Uu00n94jOQ83XIBCLtg==", "log_level": "INFO", "enable_syslog":false}
+{"start_join":["consul"], "server": true, "datacenter": "stu", "data_dir": "/var/consul", "encrypt": "", "log_level": "INFO", "enable_syslog":false}

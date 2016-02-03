@@ -6,10 +6,15 @@ DATA_DIR?=/var/consul
 ENABLE_SYSLOG?=false
 
 
-stack: cluster.key build up demo
+stack: cluster.key build up members
 
 up:
+	# cleanup
+	docker-compose stop || true
 	docker-compose rm -f || true
+	docker-compose ps
+
+	# build up
 	docker-compose build --no-cache
 	docker-compose up -d bootstrap
 	docker-compose up -d server
@@ -17,27 +22,33 @@ up:
 
 
 demo:
-	echo "consul: initial-bootstrap-node + consul-server*1 + consul-agent*1:"
+	echo "DEMO:  normalizing scale prior to demo:"
+	docker-compose scale server=1 agent=1 bootstrap=1
+
+	sleep 2
+	echo "DEMO:  *DEMO*"
+	echo "DEMO:  consul: initial-bootstrap-node + consul-server*1 + consul-agent*1:"
 	docker-compose ps
-	sleep 1
+	sleep 2
 
-	echo "and the cluster members:"
-	docker exec -it $(docker-compose ps -q agent) consul members
-	sleep 1
+	echo "DEMO:   and the cluster members:"
+	docker exec -it $(shell docker-compose ps -q agent) consul members
+	sleep 2
 
-	echo "lets scale out number of servers:"
+	echo "DEMO:  lets scale out number of servers:"
 	docker-compose scale server=10
-	docker exec -it $(docker-compose ps -q agent) consul members
-        sleep 1
+	docker exec -it $(shell docker-compose ps -q agent) consul members
+	sleep 1
 
-	echo "and scale down:"
+	echo "DEMO:    and scale down:"
 	docker-compose scale server=3
-	docker exec -it $(docker-compose ps -q agent) consul members
-        sleep 1
+	docker-compose ps
+	docker exec -it $(shell docker-compose ps -q agent) consul members
+	sleep 1
 
-	echo "get agent info:"
-	docker exec -it $(docker-compose ps -q agent) consul info
-	echo "fan, u will have :-)  "
+	echo "DEMO:    get agent info:"
+	docker exec -it $(shell docker-compose ps -q agent) consul info
+	echo "DEMO:    fun, u shall have :-)  "
 
 
 
@@ -45,7 +56,7 @@ logs:
 	docker-compose logs
 
 members:
-	docker-compose run agent consul members
+	docker exec -it $(shell docker-compose ps -q agent) consul members
 
 
 
@@ -96,16 +107,10 @@ agent_config:
 	echo '{"start_join":["consul"], "datacenter": "$(DATACENTER)", "data_dir": "$(DATA_DIR)", "encrypt": "$(shell cat cluster.key)", "log_level": "$(LOG_LEVEL)", "enable_syslog":$(ENABLE_SYSLOG)}' \
 	| tee consul-agent/consul-agent.json
 agent_image:
-	docker build -t consul-agent consul-server
+	docker build -t consul-agent consul-server/
 
 
 
-
-
-
-# test test test 
-test_base: base
-	docker run -it --rm rednut/consul --help
 
 
 
@@ -129,9 +134,17 @@ cluster.key:
 #	  rednut/consul configtest -config-file=/etc/consul.d/bootstrap/config.json
 
 clean:
+	# cleanup
+	docker-compose stop || true
+	docker-compose rm -f || true
+	docker-compose ps
+
 	docker-compose kill -f || true
 	docker-compose rm -f || true
-	docker rm -f consul-agent consul-server consul-bootstrap consul-base
-	mv -v cluster.key cluster.key.$(date +%Y-%m-%d:%H:%M:%S)
+	docker rmi -f consul-agent || true
+	docker rmi -f consul-server || true
+	docker rmi -f consul-bootstrap || true
+	docker rmi -f consul-base || true
+	test -f cluster.key && mv -v cluster.key cluster.key.$(shell date +"%Y-%m-%d:%H:%M:%S") || true
 
 

@@ -5,8 +5,8 @@
 ##               Cluster Addr: 172.17.0.2 (LAN: 8301, WAN: 8302)
 
 bootstrap:
-  #image: consul-bootstrap
-  build: consul-bootstrap/
+  image: consul-bootstrap
+  #build: consul-bootstrap
   expose:
     - "8500"
     - "8600"
@@ -15,7 +15,8 @@ bootstrap:
     - "8302"
 
 server:
-  build: consul-server/
+  image: consul-server
+  #build: consul-server/
   links:
     - "bootstrap:consul"
   expose:
@@ -28,7 +29,8 @@ server:
 
 
 agent:
-  build: consul-agent
+  #build: consul-agent
+  image: consul-agent
   links:
     - "server:consul"
   expose:
